@@ -16,7 +16,8 @@ def phone(phone: str = Query(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d
 
 
 @app.get("/ep_phone/{phone}")  # +34 111 12-34-56
-def phone(phone: str = Path(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$")):
+def phone(phone: str = Path(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$",
+                            example="+34 123 12-34-56")):
     return {"phone": phone}
 
 

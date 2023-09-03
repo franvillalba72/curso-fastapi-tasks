@@ -11,12 +11,6 @@ class StatusType(str, Enum):
 class MyBaseModel(BaseModel):
     id: int = Field(1, gt=0)
 
-    # @field_validator('id')
-    # def id_greater_than_zero(cls, value: int):
-    #     if value > 0:
-    #         return value
-    #     raise ValueError('Must be greater than zero')
-
 
 class Category(MyBaseModel):
     name: str
@@ -38,8 +32,35 @@ class Task(MyBaseModel):
     # tags: List[str] = []   # Para meter una lista como campo. Admite duplicados
     tags: set[str] = set()  # El set es una lista que no admite duplicados
 
+    # Definimos unos datos de ejemplo para pruebas
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "id": 123,
+                    "name": "Salvar al mundo",
+                    "description": "Salvar al mundo",
+                    "status": StatusType.PENDING,
+                    "category": {
+                        "id": 1234,
+                        "name": "Categoria 1"
+                    },
+                    "user": {
+                        "id": 12,
+                        "name": "Francisco",
+                        "surname": "Villalba",
+                        "email": "franvillalba@me.com",
+                        "website": "https://franvillalbaweb.es/"
+                    },
+                    "tags": ["tag 1", "tag 2"]
+                }
+            ]
+        }
+    }
+
     @field_validator('name')
     def name_alphanumeric(cls, value: str):
         if value.replace(' ', '').isalnum() and len(value.replace(' ', '')) > 0:
             return value
+
         raise ValueError('Must be alphanumeric and not blank')
