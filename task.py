@@ -1,72 +1,58 @@
-from fastapi import APIRouter, status, HTTPException, Body
-from models import Task, StatusType
+from fastapi import APIRouter, status, Path, Body, Depends
+from sqlalchemy.orm import Session
+
+from database.database import get_database_session
+from schemes import Task
+from database.task import crud
+from dataexample import task_with_ORM
 
 router = APIRouter()
 
-task_list = []
-
 
 @router.get('/', status_code=status.HTTP_200_OK)
-def get():
-    return {'tasks': task_list}
+def get(db: Session = Depends(get_database_session)):
+    tasks = crud.getAll(db=db)
+
+    return {'tasks': tasks}
+
+
+@router.get('/{id}', status_code=status.HTTP_200_OK)
+def getById(id: int = Path(ge=1), db: Session = Depends(get_database_session)):
+    task = crud.getById(db=db, id=id)
+
+    return {'task': task}
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED)
-def add(task: Task):
-    # Verificamos que la tarea no existe
-    if task in task_list:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Task {task.name} already exists"
-        )
-        return
+def add(task: Task = Body(example=task_with_ORM), db: Session = Depends(get_database_session)):
+    taskdb = crud.create(db=db, task=task)
 
-    task_list.append(task)
-    return {'tasks': task_list}
+    return {'task': taskdb}
 
 
-@router.put('/', status_code=status.HTTP_200_OK)
-def update(index: int, task: Task = Body(
-    examples=[
-        {
-            "id": 123,
-            "name": "Salvar al mundo actualizado",
-            "description": "Salvar al mundo",
-            "status": StatusType.PENDING,
-            "category": {
-                "id": 1234,
-                "name": "Categoria 1"
-            },
-            "user": {
-                "id": 12,
-                "name": "Francisco",
-                "surname": "Villalba García",
-                "email": "franvillalba@me.com",
-                "website": "https://franvillalbaweb.es/"
-            },
-            "tags": ["tag 1", "tag 2"]
-        }
-    ]
-)):
-    # Verificamos que el índice existe
-    if len(task_list) <= index:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task ID doesn't exists"
-        )
+@router.put('/{id}', status_code=status.HTTP_200_OK)
+def update(id: int = Path(ge=1), task: Task = Body(example=task_with_ORM), db: Session = Depends(get_database_session)):
+    result = crud.update(db=db, id=id, task=task)
 
-    task_list[index] = task
-    return {'tasks': task_list}
+    return result
 
 
-@router.delete('/', status_code=status.HTTP_200_OK)
-def delete(index: int):
-    # Verificamos que el índice existe
-    if len(task_list) <= index:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Task ID doesn't exists"
-        )
+@router.delete('/{id}', status_code=status.HTTP_200_OK)
+def delete(id: int = Path(ge=1), db: Session = Depends(get_database_session)):
+    task_db = crud.delete(db=db, id=id)
 
-    del task_list[index]
-    return {'tasks': task_list}
+    return {'task': task_db}
+
+
+@router.post('/tag/{tag_id}/{task_id}', status_code=status.HTTP_200_OK)
+def tagAdd(tag_id: int = Path(ge=1), task_id: int = Path(ge=1), db: Session = Depends(get_database_session)):
+    result = crud.tagAdd(db, tag_id, task_id)
+
+    return result
+
+
+@router.delete('/tag/{tag_id}/{task_id}', status_code=status.HTTP_200_OK)
+def tagAdd(tag_id: int = Path(ge=1), task_id: int = Path(ge=1), db: Session = Depends(get_database_session)):
+    result = crud.tagRemove(db, tag_id, task_id)
+
+    return result

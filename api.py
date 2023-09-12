@@ -1,13 +1,22 @@
-from fastapi import FastAPI, APIRouter, Query, Path
+from fastapi import FastAPI, APIRouter, Query, Path, Depends
+from sqlalchemy.orm import Session
+
 from task import router as task_router
 from myupload import upload_router
+
+from database.database import Base, engine, get_database_session
+from database.models import Task
 
 app = FastAPI()
 router = APIRouter()
 
+# Creamos las tablas en la base de datos si no existen
+Base.metadata.create_all(bind=engine)
+
 
 @router.get('/hello')
-def hello_world():
+# Con el Depends indicamos que no son parámetros que se van a recibir por el query
+def hello_world(db: Session = Depends(get_database_session)):
     return {'Hola': 'world'}
 
 
