@@ -9,7 +9,7 @@ class StatusType(str, Enum):
 
 
 class MyBaseModel(BaseModel):
-    id: int = Field(1, gt=0)
+    id: int = Field(1, gt=0, autoincrement=True, Optional=True)
 
 
 class Category(MyBaseModel):

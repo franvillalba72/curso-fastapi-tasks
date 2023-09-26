@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI, APIRouter, Query, Path, Depends
 from sqlalchemy.orm import Session
 
@@ -34,3 +35,7 @@ def phone(phone: str = Path(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d]
 app.include_router(router=router)
 app.include_router(router=task_router, prefix='/tasks')
 app.include_router(router=upload_router, prefix='/upload')
+
+
+if __name__=="__main__":
+    uvicorn.run("api:app", port=8000, reload=True)

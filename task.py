@@ -1,6 +1,8 @@
+# Router for task
 from fastapi import APIRouter, status, Path, Body, Depends
 from sqlalchemy.orm import Session
 
+# Importamos el conector a la base de datos y el método para obtener la sesión
 from database.database import get_database_session
 from schemes import Task
 from database.task import crud

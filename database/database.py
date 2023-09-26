@@ -1,3 +1,4 @@
+# Crea la conexión con la base de datos y la sesión para interactuar con ella
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 

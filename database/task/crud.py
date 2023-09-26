@@ -14,8 +14,7 @@ def getById(db: Session, id: int):
     task = db.query(models.Task).get(id)
     if task is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Task {id} not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Task {id} not found"
         )
     return task
 
@@ -27,18 +26,20 @@ def getByCategoryId(db: Session, id: int):
 
 
 def create(db: Session, task: Task):
-    taskdb = models.Task(name=task.name,
-                         description=task.description,
-                         status=task.status,
-                         category_id=task.category_id,
-                         user_id=task.user_id)
+    taskdb = models.Task(
+        name=task.name,
+        description=task.description,
+        status=task.status,
+        category_id=task.category_id,
+        user_id=task.user_id,
+    )
     try:
         db.add(taskdb)
         db.commit()
     except:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Task {task.name} already exists"
+            detail=f"Task {task.name} already exists",
         )
 
     db.refresh(taskdb)  # Esto es opcional porque no lo vamos a usar ahora
@@ -57,11 +58,10 @@ def update(db: Session, id: int, task: Task):
         db.commit()
     except:
         raise HTTPException(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE,
-            detail="Error in update"
+            status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Error in update"
         )
 
-    return {'Success': f"Task {taskdb.id} updated"}
+    return {"Success": f"Task {taskdb.id} updated"}
 
 
 def delete(db: Session, id: int):
@@ -84,8 +84,7 @@ def getTagById(db: Session, id: int):
     tag = db.query(models.Tag).get(id)
     if tag is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Tag {id} not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail=f"Tag {id} not found"
         )
 
     return tag
@@ -98,7 +97,7 @@ def tagAdd(db: Session, id: int, task_id: int):
     taskdb.tags.append(tag)
     db.commit()
 
-    return {'Success': f"Tag {tag.id} added to task {taskdb.id}"}
+    return {"Success": f"Tag {tag.id} added to task {taskdb.id}"}
 
 
 def tagRemove(db: Session, id: int, task_id: int):
@@ -108,4 +107,4 @@ def tagRemove(db: Session, id: int, task_id: int):
     taskdb.tags.remove(tag)
     db.commit()
 
-    return {'Success': f"Tag {tag.id} removed from task {taskdb.id}"}
+    return {"Success": f"Tag {tag.id} removed from task {taskdb.id}"}
