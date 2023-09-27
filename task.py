@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 
 # Importamos el conector a la base de datos y el método para obtener la sesión
 from database.database import get_database_session
-from schemes import Task
 from database.task import crud
+from schemes import Task, TaskRead, TaskWrite
 from dataexample import task_with_ORM
 
 router = APIRouter()
@@ -15,25 +15,28 @@ router = APIRouter()
 def get(db: Session = Depends(get_database_session)):
     tasks = crud.getAll(db=db)
 
-    return {'tasks': tasks}
+    # Devolvemos el casteo de los objetos de la base de datos a objetos de la clase Task (Pydantic)
+    return {'tasks': [TaskRead.from_orm(task) for task in tasks]}
 
 
 @router.get('/{id}', status_code=status.HTTP_200_OK)
 def getById(id: int = Path(ge=1), db: Session = Depends(get_database_session)):
-    task = crud.getById(db=db, id=id)
+    # Devolvemos un objeto de la base de datos
+    # return crud.getById(db=db, id=id)
 
-    return {'task': task}
+    # En vez de devolver un objeto de la base de datos, devolvemos un objeto de la clase Task (Pydantic)
+    return Task.from_orm(crud.getById(db=db, id=id))
 
 
 @router.post('/', status_code=status.HTTP_201_CREATED)
-def add(task: Task = Body(example=task_with_ORM), db: Session = Depends(get_database_session)):
+def add(task: TaskWrite = Body(example=task_with_ORM), db: Session = Depends(get_database_session)):
     taskdb = crud.create(db=db, task=task)
 
-    return {'task': taskdb}
+    return {'task': TaskWrite.from_orm(taskdb)}
 
 
 @router.put('/{id}', status_code=status.HTTP_200_OK)
-def update(id: int = Path(ge=1), task: Task = Body(example=task_with_ORM), db: Session = Depends(get_database_session)):
+def update(id: int = Path(ge=1), task: TaskWrite = Body(example=task_with_ORM), db: Session = Depends(get_database_session)):
     result = crud.update(db=db, id=id, task=task)
 
     return result

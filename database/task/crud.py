@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, load_only
 from database import models
 from schemes import Task
 from database.pagination import paginate, PageParams
@@ -11,7 +11,10 @@ def getAll(db: Session):
 
 
 def getById(db: Session, id: int):
-    task = db.query(models.Task).get(id)
+    # task = db.query(models.Task).get(id)
+    # Podemos cargar solo los campos que nos interesen
+    task = db.query(models.Task).options(
+        load_only(models.Task.name, models.Task.status)).get(id)
     if task is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Task {id} not found"

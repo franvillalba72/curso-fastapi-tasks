@@ -37,5 +37,5 @@ app.include_router(router=task_router, prefix='/tasks')
 app.include_router(router=upload_router, prefix='/upload')
 
 
-if __name__=="__main__":
-    uvicorn.run("api:app", port=8000, reload=True)
+if __name__ == "__main__":
+    uvicorn.run("main:app", port=8000, reload=True)

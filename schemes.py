@@ -1,3 +1,4 @@
+# Description: Esquemas de datos para la API
 from pydantic import BaseModel, field_validator, Field, EmailStr, AnyUrl
 from typing import Optional, List
 from enum import Enum
@@ -8,33 +9,30 @@ class StatusType(str, Enum):
     PENDING = "pending"
 
 
-class MyBaseModel(BaseModel):
-    id: int = Field(1, gt=0, autoincrement=True, Optional=True)
-
-
-class Category(MyBaseModel):
+class Category(BaseModel):
     name: str
 
 
-class User(MyBaseModel):
+class User(BaseModel):
     name: str = Field(min_length=5)
     surname: str
     email: EmailStr
     website: AnyUrl
 
 
-class Task(MyBaseModel):
+class Task(BaseModel):
     name: str = Field(min_length=3)
     description: Optional[str] = Field(None, min_length=3)
     status: StatusType
     # category: Category
     # user: User
     category_id: int = Field(ge=1, le=1000)
-    user_id: int = Field(ge=1)
-    tags: set[str] = set()  # El set es una lista que no admite duplicados
+    # user_id: int = Field(ge=1)
+    # tags: set[str] = set()  # El set es una lista que no admite duplicados
 
-    # Definimos unos datos de ejemplo para pruebas
+    # Creamos la clase Config para que el modelo se comporte como un diccionario
     class Config:
+        # orm_mode = True
         from_attributes = True
 
     @field_validator('name')
@@ -43,3 +41,12 @@ class Task(MyBaseModel):
             return value
 
         raise ValueError('Must be alphanumeric and not blank')
+
+
+class TaskRead(Task):
+    id: int
+
+
+class TaskWrite(Task):
+    id: Optional[int] = Field(None, ge=1)
+    user_id: Optional[int] = Field(None, ge=1)

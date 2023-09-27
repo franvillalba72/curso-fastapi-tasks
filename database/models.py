@@ -1,3 +1,4 @@
+# Modelos de la base de datos
 from sqlalchemy.schema import Column, ForeignKey
 from sqlalchemy.types import String, Integer, Text, Enum, DateTime
 from sqlalchemy.orm import relationship
@@ -18,7 +19,7 @@ task_tag = Table(
 
 class Task(Base):
     __tablename__ = "tasks"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String(20), unique=True)
     description = Column(Text())
     status = Column(Enum(StatusType))
