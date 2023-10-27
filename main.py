@@ -8,13 +8,25 @@ from myupload import upload_router
 
 from database.database import Base, engine, get_database_session
 from database.models import Task
-from fastapi import HTTPException
+from fastapi import HTTPException, Request
+import time
 
 app = FastAPI()
 router = APIRouter()
 
 # Creamos las tablas en la base de datos si no existen
 Base.metadata.create_all(bind=engine)
+
+
+# Middlewares
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    print(process_time)
+    return response
 
 
 @router.get('/hello')
