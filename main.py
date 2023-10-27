@@ -1,5 +1,6 @@
 import uvicorn
-from fastapi import FastAPI, APIRouter, Query, Path, Depends
+from fastapi import FastAPI, APIRouter, Query, Path, Depends, Header, status
+from typing import Optional, Annotated
 from sqlalchemy.orm import Session
 
 from task import router as task_router
@@ -7,6 +8,7 @@ from myupload import upload_router
 
 from database.database import Base, engine, get_database_session
 from database.models import Task
+from fastapi import HTTPException
 
 app = FastAPI()
 router = APIRouter()
@@ -30,6 +32,37 @@ def phone(phone: str = Query(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d
 def phone(phone: str = Path(pattern=r"^(\(?\+[\d]{1,3}\)?)\s?([\d]{1,5})\s?([\d][\s\.-]?){6,7}$",
                             example="+34 123 12-34-56")):
     return {"phone": phone}
+
+
+# Dependencias en el query
+def pagination(page: Optional[int] = 1, limit: Optional[int] = 10) -> dict:
+    return {"page": page-1, "limit": limit}
+
+
+@app.get("/p-task")
+def index(pagination: dict = Depends(pagination)):
+    return pagination
+
+
+# Dependencias en el path
+def validate_token(token: str = Header()):
+    if token != "123456":
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+
+@app.get("/route-protected", dependencies=[Depends(validate_token)])
+def protected_route(index: int):
+    return {"index": index}
+
+
+# Dependencias en anotaciones (variables)
+CurrentTaskId = Annotated[int, Depends(validate_token)]
+
+
+@app.get("/route-protected2")
+def protected_route2(token: CurrentTaskId, index: int):
+    return {"index": index}
 
 
 app.include_router(router=router)

@@ -24,10 +24,8 @@ class Task(BaseModel):
     name: str = Field(min_length=3)
     description: Optional[str] = Field(None, min_length=3)
     status: StatusType
-    # category: Category
-    # user: User
     category_id: int = Field(ge=1, le=1000)
-    # user_id: int = Field(ge=1)
+    user_id: int = Field(ge=1)
     # tags: set[str] = set()  # El set es una lista que no admite duplicados
 
     # Creamos la clase Config para que el modelo se comporte como un diccionario

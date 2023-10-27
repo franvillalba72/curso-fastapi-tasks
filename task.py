@@ -7,8 +7,12 @@ from database.database import get_database_session
 from database.task import crud
 from schemes import Task, TaskRead, TaskWrite
 from dataexample import task_with_ORM
+from typing import Annotated
+
 
 router = APIRouter()
+
+DbSession = Annotated[Session, Depends(get_database_session)]
 
 
 @router.get('/', status_code=status.HTTP_200_OK)
