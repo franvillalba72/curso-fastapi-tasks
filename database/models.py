@@ -51,6 +51,7 @@ class User(Base):
     surname = Column(String(100))
     email = Column(String(100))
     website = Column(String(100))
+    hashed_password = Column(String(255))
 
     tasks = relationship('Task', back_populates='user', lazy='joined')
 
@@ -61,3 +62,11 @@ class Tag(Base):
     name = Column(String(20), unique=True)
 
     tasks = relationship('Task', secondary=task_tag, back_populates='tags')
+
+
+class AccessToken(Base):
+    __tablename__ = "access_tokens"
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    access_token = Column(String(255))
+    expiration_date = Column(DateTime(timezone=True))
+    user = relationship('User', lazy='joined')

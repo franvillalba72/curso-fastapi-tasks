@@ -1,6 +1,7 @@
 # Description: Esquemas de datos para la API
 from pydantic import BaseModel, field_validator, Field, EmailStr, AnyUrl
 from typing import Optional, List
+from datetime import datetime
 from enum import Enum
 
 
@@ -17,7 +18,30 @@ class User(BaseModel):
     name: str = Field(min_length=5)
     surname: str
     email: EmailStr
-    website: AnyUrl
+    website: str
+
+    class Config:
+        # orm_mode = True
+        from_attributes = True
+
+
+class UserCreate(User):
+    password: str = Field(min_length=8)
+    confirm_password: str = Field(min_length=8)
+
+
+class UserDB(User):
+    hashed_password: str
+
+
+class AccessToken(BaseModel):
+    user_id: int
+    access_token: str
+    expiration_date: datetime
+
+    class Config:
+        # orm_mode = True
+        from_attributes = True
 
 
 class Task(BaseModel):

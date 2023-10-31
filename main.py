@@ -1,14 +1,17 @@
 import uvicorn
 from fastapi import FastAPI, APIRouter, Query, Path, Depends, Header, status
+from fastapi.security import APIKeyHeader
 from typing import Optional, Annotated
 from sqlalchemy.orm import Session
 
 from task import router as task_router
 from myupload import upload_router
+from user import user_router
 
 from database.database import Base, engine, get_database_session
-from database.models import Task
+from database.models import Task, User, AccessToken
 from fastapi import HTTPException, Request
+from authentication.authentication import verify_access_token
 import time
 
 app = FastAPI()
@@ -19,20 +22,33 @@ Base.metadata.create_all(bind=engine)
 
 
 # Middlewares
-@app.middleware("http")
-async def add_process_time_header(request: Request, call_next):
-    start_time = time.time()
-    response = await call_next(request)
-    process_time = time.time() - start_time
-    response.headers["X-Process-Time"] = str(process_time)
-    print(process_time)
-    return response
+# @app.middleware("http")
+# async def add_process_time_header(request: Request, call_next):
+#     start_time = time.time()
+#     response = await call_next(request)
+#     process_time = time.time() - start_time
+#     response.headers["X-Process-Time"] = str(process_time)
+#     print(process_time)
+#     return response
+
+
+# Tokens Auth no BD
+API_KEY_TOKEN = "SECRET_PASSWORD"
+api_key_token = APIKeyHeader(name='Token')
+
+
+@app.get("/protected-route")
+def protected_route(token: str = Depends(api_key_token)):
+    if token != API_KEY_TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    return {"message": "You are authenticated"}
 
 
 @router.get('/hello')
 # Con el Depends indicamos que no son parámetros que se van a recibir por el query
-def hello_world(db: Session = Depends(get_database_session)):
-    return {'Hola': 'world'}
+def hello_world(user=Depends(verify_access_token), db: Session = Depends(get_database_session)):
+    return {'User': user}
 
 
 @app.get("/e_phone")
@@ -78,8 +94,9 @@ def protected_route2(token: CurrentTaskId, index: int):
 
 
 app.include_router(router=router)
-app.include_router(router=task_router, prefix='/tasks')
-app.include_router(router=upload_router, prefix='/upload')
+app.include_router(router=task_router, prefix='/tasks', tags=['Tasks'])
+app.include_router(router=upload_router, prefix='/upload', tags=['Upload'])
+app.include_router(router=user_router, tags=['User'])
 
 
 if __name__ == "__main__":
