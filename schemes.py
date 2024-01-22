@@ -52,10 +52,19 @@ class Task(BaseModel):
     user_id: int = Field(ge=1)
     # tags: set[str] = set()  # El set es una lista que no admite duplicados
 
-    # Creamos la clase Config para que el modelo se comporte como un diccionario
-    class Config:
-        # orm_mode = True
-        from_attributes = True
+    # Configuración del esquema
+    model_config = {
+        'from_attributes': True,
+        "json_schema_extra": {
+            "example": {
+                "name": "Task 1",
+                "description": "Task 1 description",
+                "status": "pending",
+                "category_id": 1,
+                "user_id": 1
+            }
+        }
+    }
 
     @field_validator('name')
     def name_alphanumeric(cls, value: str):

@@ -8,6 +8,7 @@ from database.task import crud
 from schemes import Task, TaskRead, TaskWrite
 from dataexample import task_with_ORM
 from typing import Annotated
+from authentication.authentication import verify_access_token
 
 
 router = APIRouter()
@@ -16,7 +17,7 @@ DbSession = Annotated[Session, Depends(get_database_session)]
 
 
 @router.get('/', status_code=status.HTTP_200_OK)
-def get(db: Session = Depends(get_database_session)):
+def get(db: Session = Depends(get_database_session), user=Depends(verify_access_token)):
     tasks = crud.getAll(db=db)
 
     # Devolvemos el casteo de los objetos de la base de datos a objetos de la clase Task (Pydantic)

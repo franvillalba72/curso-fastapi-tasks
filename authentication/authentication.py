@@ -51,8 +51,8 @@ def create_access_token(user: User, db: Session) -> AccessToken:
 auth_schema = OAuth2PasswordBearer(tokenUrl='/token')
 
 
-# def verify_access_token(token: str = Depends(api_key_token), db: Session = Depends(get_database_session)):
-def verify_access_token(token: str = Depends(auth_schema), db: Session = Depends(get_database_session)):
+# def verify_access_token(token: str = Depends(auth_schema), db: Session = Depends(get_database_session)):
+def verify_access_token(token: str = Depends(api_key_token), db: Session = Depends(get_database_session)):
     access_token = db.query(AccessToken).join(User).filter(
         AccessToken.access_token == token).first()
     if not access_token:
