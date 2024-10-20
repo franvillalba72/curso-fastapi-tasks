@@ -5,8 +5,8 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # Definimos los parámetros de la conexión a la base de datos
 DATABASE_URL = "mysql+mysqlconnector://devuser:devpass@localhost:3306/tasks"
 
-# Con create_engine nos conectamos a la base de datos
-engine = create_engine(DATABASE_URL)
+# Con create_engine nos conectamos a la base de datos y con echo=True mostramos las consultas SQL que se ejecutan
+engine = create_engine(DATABASE_URL, echo=True)
 
 # Una instancia de SessionLocal es lo que se usa para las conexiones
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

@@ -1,2 +1,5 @@
 .vscode
 __pycache__
+.venv
+.venv_win
+.venv_i5

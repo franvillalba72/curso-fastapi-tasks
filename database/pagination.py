@@ -6,7 +6,7 @@ from pydantic import BaseModel, conint
 
 class PageParams(BaseModel):
     page: conint(ge=1) = 1
-    size: conint(ge=1, le=100) = 10
+    size: conint(ge=1, le=100) = 5
 
 
 T = TypeVar("T")
@@ -24,7 +24,8 @@ class PagedResponseSchema(BaseModel, Generic[T]):
 def paginate(page_params: PageParams, query, ResponseSchema: BaseModel) -> PagedResponseSchema[T]:
     """Paginate the query."""
 
-    paginated_query = query.offset((page_params.page - 1) * page_params.size).limit(page_params.size).all()
+    paginated_query = query.offset(
+        (page_params.page - 1) * page_params.size).limit(page_params.size).all()
 
     return PagedResponseSchema(
         total=query.count(),

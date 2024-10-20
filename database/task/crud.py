@@ -39,10 +39,10 @@ def create(db: Session, task: Task):
     try:
         db.add(taskdb)
         db.commit()
-    except:
+    except Exception as exc:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Task {task.name} already exists",
+            detail=f"Error: {exc.args}",
         )
 
     db.refresh(taskdb)  # Esto es opcional porque no lo vamos a usar ahora
