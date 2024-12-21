@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Table
 from sqlalchemy.sql import func
 
+# Importamos el declarative_base para crear las tablas físicas
 from database.database import Base
 from schemes import StatusType
 
